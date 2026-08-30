@@ -1,6 +1,6 @@
 {
   "name": "iobroker.xtream-monitor",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "Monitor multiple Xtream-compatible accounts in ioBroker",
   "author": "chrvidal",
   "license": "MIT",
@@ -40,7 +40,7 @@
     "@tsconfig/node22": "^22.0.5",
     "@types/node": "^22.0.0",
     "typescript": "^5.9.0",
-    "@iobroker/testing": "5.2.2"
+    "@iobroker/testing": "^5.2.2"
   },
   "repository": {
     "type": "git",

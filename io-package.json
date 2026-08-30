@@ -1,7 +1,7 @@
 {
   "common": {
     "name": "xtream-monitor",
-    "version": "0.2.6",
+    "version": "0.2.7",
     "titleLang": {
       "en": "Xtream Monitor",
       "de": "Xtream Monitor",
@@ -52,18 +52,18 @@
       }
     ],
     "news": {
-      "NEXT": {
-        "en": "Prepared the adapter for public repository review: metadata, translations, responsive Admin UI, managed timers and automated tests/CI.",
-        "de": "Adapter für die Prüfung im öffentlichen Repository vorbereitet: Metadaten, Übersetzungen, responsive Admin-Oberfläche, verwaltete Timer und automatisierte Tests/CI.",
-        "ru": "Адаптер подготовлен к проверке для публичного репозитория: метаданные, переводы, адаптивный интерфейс Admin, управляемые таймеры и автоматические тесты/CI.",
-        "pt": "Adaptador preparado para revisão no repositório público: metadados, traduções, interface Admin responsiva, temporizadores geridos e testes/CI automáticos.",
-        "nl": "Adapter voorbereid voor beoordeling in de openbare repository: metadata, vertalingen, responsieve Admin-UI, beheerde timers en geautomatiseerde tests/CI.",
-        "fr": "Adaptateur préparé pour la revue du dépôt public : métadonnées, traductions, interface Admin responsive, minuteries gérées et tests/CI automatisés.",
-        "it": "Adapter preparato per la revisione nel repository pubblico: metadati, traduzioni, interfaccia Admin responsive, timer gestiti e test/CI automatizzati.",
-        "es": "Adaptador preparado para la revisión del repositorio público: metadatos, traducciones, interfaz Admin adaptable, temporizadores gestionados y pruebas/CI automatizadas.",
-        "pl": "Adapter przygotowany do przeglądu w publicznym repozytorium: metadane, tłumaczenia, responsywny interfejs Admin, zarządzane timery oraz automatyczne testy/CI.",
-        "uk": "Адаптер підготовлено до перевірки для публічного репозиторію: метадані, переклади, адаптивний інтерфейс Admin, керовані таймери та автоматичні тести/CI.",
-        "zh-cn": "为公共仓库审核做好准备：补充元数据和翻译、响应式管理界面、受管计时器以及自动化测试/CI。"
+      "0.2.7": {
+        "en": "Fixed repository metadata for ioBroker review, added valid release news metadata, Dependabot cooldown and license copyright information.",
+        "de": "Repository-Metadaten für die ioBroker-Prüfung korrigiert sowie gültige Release-News, Dependabot-Cooldown und Copyright-Angabe zur Lizenz ergänzt.",
+        "ru": "Исправлены метаданные репозитория для проверки ioBroker, добавлены корректные сведения о выпуске, задержка Dependabot и информация об авторских правах.",
+        "pt": "Foram corrigidos os metadados do repositório para a revisão do ioBroker e adicionados metadados de versão válidos, cooldown do Dependabot e informação de copyright.",
+        "nl": "Repositorymetadata voor de ioBroker-controle gecorrigeerd en geldige releasenews, Dependabot-cooldown en copyrightinformatie toegevoegd.",
+        "fr": "Correction des métadonnées du dépôt pour la revue ioBroker, ajout de notes de version valides, d’un délai Dependabot et des informations de copyright.",
+        "it": "Corretti i metadati del repository per la revisione ioBroker e aggiunti metadati di rilascio validi, cooldown di Dependabot e informazioni sul copyright.",
+        "es": "Se corrigieron los metadatos del repositorio para la revisión de ioBroker y se añadieron noticias de versión válidas, cooldown de Dependabot e información de copyright.",
+        "pl": "Poprawiono metadane repozytorium do weryfikacji ioBroker oraz dodano prawidłowe informacje o wydaniu, opóźnienie Dependabot i informacje o prawach autorskich.",
+        "uk": "Виправлено метадані репозиторію для перевірки ioBroker, додано коректні дані релізу, затримку Dependabot та інформацію про авторські права.",
+        "zh-cn": "修复了用于 ioBroker 审核的仓库元数据，并添加了有效的版本新闻、Dependabot 冷却期和版权信息。"
       }
     },
     "icon": "xtream-monitor.png",

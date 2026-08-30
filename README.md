@@ -90,6 +90,14 @@ npx @iobroker/repochecker https://github.com/chrvidal/ioBroker.xtream-monitor ma
 
 ## Changelog
 
+### 0.2.7 (2026-08-30)
+
+- Fixed repository metadata reported by the ioBroker repository checker.
+- Added valid `common.news` metadata for the current release.
+- Relaxed the `@iobroker/testing` devDependency to a compatible semver range.
+- Added Dependabot cooldown configuration.
+- Added the required license copyright line.
+
 ### 0.2.6 (2026-08-30)
 
 - Prepared repository metadata for ioBroker public repository review.
@@ -126,3 +134,5 @@ npx @iobroker/repochecker https://github.com/chrvidal/ioBroker.xtream-monitor ma
 ## License
 
 MIT License. See [LICENSE](LICENSE).
+
+Copyright (c) 2026 chrvidal
