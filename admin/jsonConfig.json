@@ -14,7 +14,6 @@
       "newLine": true,
       "sm": 12,
       "compact": true,
-      "showFirstAddOnTop": true,
       "showSecondAddAt": 5,
       "uniqueColumns": [
         "id"
@@ -38,14 +37,14 @@
           "attr": "id",
           "width": 120,
           "readOnly": true,
-          "defaultFunc": "(() => { const rows = Array.isArray(globalData.servers) ? globalData.servers : []; const nums = rows.map(r => /^server(\\d+)$/.exec(String(r.id || ''))).filter(Boolean).map(m => Number(m[1])); return 'server' + (Math.max(0, ...nums) + 1); })()"
+          "defaultFunc": "(() => { const rows = globalData && Array.isArray(globalData.servers) ? globalData.servers : []; const nums = rows.map(r => /^server(\\d+)$/.exec(String(r.id || ''))).filter(Boolean).map(m => Number(m[1])); const idx = Number(arrayIndex) + 1; const next = Math.max(idx > 0 ? idx : 1, Math.max(0, ...nums) + 1); return 'server' + next; })()"
         },
         {
           "type": "text",
           "title": "Name",
           "attr": "name",
           "width": 140,
-          "defaultFunc": "(() => { const rows = Array.isArray(globalData.servers) ? globalData.servers : []; const nums = rows.map(r => /^server(\\d+)$/.exec(String(r.id || ''))).filter(Boolean).map(m => Number(m[1])); return 'Server ' + (Math.max(0, ...nums) + 1); })()"
+          "defaultFunc": "(() => { const idx = Number(arrayIndex) + 1; return 'Server ' + (idx > 0 ? idx : 1); })()"
         },
         {
           "type": "text",

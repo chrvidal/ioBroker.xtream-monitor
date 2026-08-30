@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.3 (2026-08-30)
+
+- Fixed GitHub installations failing with `cannot find start file` by tracking the compiled `build/` output in the repository.
+- Removed `showFirstAddOnTop` from JSON Config for compatibility with ioBroker Admin 8.0.1.
+- Improved automatic server ID generation in the Admin table.
+- Runtime fallback now uses `server1`, `server2`, ... when an older Admin version does not persist the generated ID.
+- Added repository metadata and maintainer name.
+
 ## 0.2.2 (2026-08-30)
 
 - Removed the copy-to-clipboard buttons from the technical server ID column.

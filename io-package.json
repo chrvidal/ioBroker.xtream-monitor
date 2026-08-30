@@ -1,7 +1,7 @@
 {
   "common": {
     "name": "xtream-monitor",
-    "version": "0.2.2",
+    "version": "0.2.3",
     "title": "Xtream Monitor",
     "titleLang": {
       "en": "Xtream Monitor",
@@ -9,10 +9,10 @@
     },
     "desc": {
       "en": "Monitors availability and account status of multiple Xtream-compatible API endpoints.",
-      "de": "Überwacht Erreichbarkeit und Accountstatus mehrerer Xtream-kompatibler API-Endpunkte."
+      "de": "\u00dcberwacht Erreichbarkeit und Accountstatus mehrerer Xtream-kompatibler API-Endpunkte."
     },
     "authors": [
-      "TODO"
+      "chrvidal"
     ],
     "license": "MIT",
     "platform": "Javascript/Node.js",
