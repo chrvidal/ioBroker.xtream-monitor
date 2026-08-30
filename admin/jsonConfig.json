@@ -1,0 +1,105 @@
+{
+  "i18n": true,
+  "type": "panel",
+  "label": "Xtream Monitor",
+  "items": {
+    "intro": {
+      "type": "staticText",
+      "newLine": true,
+      "text": "Add all Xtream-compatible endpoints that should be monitored. Technical server IDs are assigned automatically."
+    },
+    "servers": {
+      "type": "table",
+      "label": "Servers",
+      "newLine": true,
+      "sm": 12,
+      "compact": true,
+      "showFirstAddOnTop": true,
+      "showSecondAddAt": 5,
+      "uniqueColumns": [
+        "id"
+      ],
+      "useCardFor": [
+        "xs",
+        "sm"
+      ],
+      "titleAttribute": "name",
+      "items": [
+        {
+          "type": "checkbox",
+          "title": "Enabled",
+          "attr": "enabled",
+          "width": 80,
+          "default": true
+        },
+        {
+          "type": "text",
+          "title": "ID",
+          "attr": "id",
+          "width": 120,
+          "readOnly": true,
+          "defaultFunc": "(() => { const rows = Array.isArray(globalData.servers) ? globalData.servers : []; const nums = rows.map(r => /^server(\\d+)$/.exec(String(r.id || ''))).filter(Boolean).map(m => Number(m[1])); return 'server' + (Math.max(0, ...nums) + 1); })()"
+        },
+        {
+          "type": "text",
+          "title": "Name",
+          "attr": "name",
+          "width": 140,
+          "defaultFunc": "(() => { const rows = Array.isArray(globalData.servers) ? globalData.servers : []; const nums = rows.map(r => /^server(\\d+)$/.exec(String(r.id || ''))).filter(Boolean).map(m => Number(m[1])); return 'Server ' + (Math.max(0, ...nums) + 1); })()"
+        },
+        {
+          "type": "text",
+          "title": "Host / Server URL",
+          "attr": "host",
+          "width": 260,
+          "default": ""
+        },
+        {
+          "type": "text",
+          "title": "Username",
+          "attr": "username",
+          "width": 180,
+          "default": ""
+        },
+        {
+          "type": "password",
+          "title": "Password",
+          "attr": "password",
+          "width": 180,
+          "default": ""
+        }
+      ]
+    },
+    "pollIntervalMinutes": {
+      "type": "number",
+      "label": "Check interval",
+      "help": "Minutes between checks",
+      "min": 1,
+      "max": 1440,
+      "step": 1,
+      "unit": "min",
+      "newLine": true,
+      "sm": 12,
+      "md": 4
+    },
+    "timeoutSeconds": {
+      "type": "number",
+      "label": "Request timeout",
+      "min": 1,
+      "max": 60,
+      "step": 1,
+      "unit": "s",
+      "newLine": false,
+      "sm": 12,
+      "md": 4
+    },
+    "logStatusChanges": {
+      "type": "checkbox",
+      "label": "Log online/offline status changes",
+      "help": "Disabled by default to avoid log spam. Only real status transitions are logged.",
+      "newLine": false,
+      "sm": 12,
+      "md": 4
+    }
+  }
+}
