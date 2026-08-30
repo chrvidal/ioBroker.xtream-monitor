@@ -1,6 +1,6 @@
 {
   "name": "iobroker.xtream-monitor",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Monitor multiple Xtream-compatible accounts in ioBroker",
   "author": "chrvidal",
   "license": "MIT",

@@ -1,7 +1,7 @@
 {
   "common": {
     "name": "xtream-monitor",
-    "version": "0.2.3",
+    "version": "0.2.4",
     "title": "Xtream Monitor",
     "titleLang": {
       "en": "Xtream Monitor",
@@ -9,7 +9,7 @@
     },
     "desc": {
       "en": "Monitors availability and account status of multiple Xtream-compatible API endpoints.",
-      "de": "\u00dcberwacht Erreichbarkeit und Accountstatus mehrerer Xtream-kompatibler API-Endpunkte."
+      "de": "Überwacht Erreichbarkeit und Accountstatus mehrerer Xtream-kompatibler API-Endpunkte."
     },
     "authors": [
       "chrvidal"
@@ -47,7 +47,8 @@
     "servers": [],
     "pollIntervalMinutes": 5,
     "timeoutSeconds": 10,
-    "logStatusChanges": false
+    "logStatusChanges": false,
+    "nextServerId": 1
   },
   "objects": [],
   "instanceObjects": []

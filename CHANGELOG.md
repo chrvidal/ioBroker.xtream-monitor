@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.4 (2026-08-30)
+
+- Fixed jsonConfig schema warning on Admin 8.0.1 by removing the root panel label.
+- Persistently assigns missing technical server IDs (`server1`, `server2`, ...) in the adapter instance configuration.
+- Added a persistent `nextServerId` counter so deleted IDs are not reused.
+- Hides technical IDs from the normal configuration table; they are managed internally and remain stable.
+
 ## 0.2.3 (2026-08-30)
 
 - Fixed GitHub installations failing with `cannot find start file` by tracking the compiled `build/` output in the repository.

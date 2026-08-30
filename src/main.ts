@@ -52,6 +52,7 @@ class XtreamMonitor extends utils.Adapter {
     }
 
     private async onReady(): Promise<void> {
+        await this.ensurePersistentServerIds();
         this.servers = this.getConfiguredServers();
 
         await this.createInfoObjects();
@@ -85,6 +86,68 @@ class XtreamMonitor extends utils.Adapter {
         } catch {
             callback();
         }
+    }
+
+    private async ensurePersistentServerIds(): Promise<void> {
+        const objectId = `system.adapter.${this.namespace}`;
+        const instanceObject = await this.getForeignObjectAsync(objectId);
+
+        if (!instanceObject?.native || !Array.isArray(instanceObject.native.servers)) {
+            return;
+        }
+
+        const rows = instanceObject.native.servers as Array<Record<string, unknown>>;
+        const usedIds = new Set<string>();
+        let nextServerId = Number(instanceObject.native.nextServerId) || 1;
+
+        // Never reuse an ID that already exists, even if nextServerId is stale.
+        for (const row of rows) {
+            const existingId = this.sanitizeId(String(row.id ?? ""));
+            const match = /^server(\d+)$/.exec(existingId);
+            if (match) {
+                nextServerId = Math.max(nextServerId, Number(match[1]) + 1);
+            }
+        }
+
+        let changed = false;
+
+        for (const row of rows) {
+            let id = this.sanitizeId(String(row.id ?? ""));
+
+            if (!id || usedIds.has(id)) {
+                do {
+                    id = `server${nextServerId++}`;
+                } while (usedIds.has(id));
+
+                row.id = id;
+                changed = true;
+            }
+
+            usedIds.add(id);
+        }
+
+        if (Number(instanceObject.native.nextServerId) !== nextServerId) {
+            instanceObject.native.nextServerId = nextServerId;
+            changed = true;
+        }
+
+        if (!changed) {
+            return;
+        }
+
+        await this.setForeignObjectAsync(objectId, instanceObject);
+
+        // Keep the in-memory config in sync for the current run. Password values in the
+        // stored instance object remain untouched (and therefore stay encrypted).
+        if (Array.isArray(this.config.servers)) {
+            this.config.servers.forEach((row, index) => {
+                if (rows[index]?.id) {
+                    row.id = String(rows[index].id);
+                }
+            });
+        }
+
+        this.log.info("Assigned persistent IDs to server rows with missing or duplicate IDs.");
     }
 
     private getConfiguredServers(): ServerConfig[] {
@@ -357,7 +420,7 @@ class XtreamMonitor extends utils.Adapter {
             const response = await fetch(this.buildApiUrl(server), {
                 method: "GET",
                 headers: {
-                    "User-Agent": "ioBroker.xtream-monitor/0.2.3",
+                    "User-Agent": "ioBroker.xtream-monitor/0.2.4",
                     Accept: "application/json,text/plain,*/*",
                 },
                 signal: controller.signal,
