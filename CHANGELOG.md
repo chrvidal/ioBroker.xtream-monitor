@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.5 (2026-08-30)
+
+- Removed the technical server ID column completely from the Admin server table.
+- Server IDs continue to be assigned and persisted internally (`server1`, `server2`, ...).
+- Updated the configuration hint to clarify that technical IDs are internal.
+
 ## 0.2.4 (2026-08-30)
 
 - Fixed jsonConfig schema warning on Admin 8.0.1 by removing the root panel label.
