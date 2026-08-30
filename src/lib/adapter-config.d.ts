@@ -14,7 +14,7 @@ declare global {
             pollIntervalMinutes: number;
             timeoutSeconds: number;
             logStatusChanges: boolean;
-        nextServerId?: number;
+            nextServerId?: number;
 
             // Legacy 0.1.x fields. Used only for a smooth development migration.
             host?: string;

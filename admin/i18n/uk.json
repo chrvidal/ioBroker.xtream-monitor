@@ -1,0 +1,14 @@
+{
+  "Servers": "Сервери",
+  "Enabled": "Увімкнено",
+  "Name": "Назва",
+  "Host / Server URL": "Хост / URL сервера",
+  "Username": "Ім’я користувача",
+  "Password": "Пароль",
+  "Check interval": "Інтервал перевірки",
+  "Minutes between checks": "Хвилини між перевірками",
+  "Request timeout": "Тайм-аут запиту",
+  "Log online/offline status changes": "Записувати зміни онлайн/офлайн",
+  "Disabled by default to avoid log spam. Only real status transitions are logged.": "За замовчуванням вимкнено, щоб не засмічувати журнал. Записуються лише реальні зміни стану.",
+  "Add all Xtream-compatible endpoints that should be monitored. Technical server IDs are managed internally.": "Додайте всі Xtream-сумісні ендпоінти для моніторингу. Технічні ідентифікатори серверів керуються внутрішньо."
+}

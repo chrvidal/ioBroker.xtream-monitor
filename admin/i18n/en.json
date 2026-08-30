@@ -1,8 +1,6 @@
 {
-  "Xtream Monitor": "Xtream Monitor",
   "Servers": "Servers",
   "Enabled": "Enabled",
-  "ID": "ID",
   "Name": "Name",
   "Host / Server URL": "Host / Server URL",
   "Username": "Username",
@@ -12,5 +10,5 @@
   "Request timeout": "Request timeout",
   "Log online/offline status changes": "Log online/offline status changes",
   "Disabled by default to avoid log spam. Only real status transitions are logged.": "Disabled by default to avoid log spam. Only real status transitions are logged.",
-  "Add all Xtream-compatible endpoints that should be monitored. Technical server IDs are assigned automatically.": "Add all Xtream-compatible endpoints that should be monitored. Technical server IDs are assigned automatically."
+  "Add all Xtream-compatible endpoints that should be monitored. Technical server IDs are managed internally.": "Add all Xtream-compatible endpoints that should be monitored. Technical server IDs are managed internally."
 }

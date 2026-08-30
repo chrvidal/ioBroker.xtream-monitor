@@ -1,20 +1,36 @@
 {
   "common": {
     "name": "xtream-monitor",
-    "version": "0.2.5",
-    "title": "Xtream Monitor",
+    "version": "0.2.6",
     "titleLang": {
       "en": "Xtream Monitor",
-      "de": "Xtream Monitor"
+      "de": "Xtream Monitor",
+      "ru": "Xtream Monitor",
+      "pt": "Xtream Monitor",
+      "nl": "Xtream Monitor",
+      "fr": "Xtream Monitor",
+      "it": "Xtream Monitor",
+      "es": "Xtream Monitor",
+      "pl": "Xtream Monitor",
+      "uk": "Xtream Monitor",
+      "zh-cn": "Xtream Monitor"
     },
     "desc": {
-      "en": "Monitors availability and account status of multiple Xtream-compatible API endpoints.",
-      "de": "Überwacht Erreichbarkeit und Accountstatus mehrerer Xtream-kompatibler API-Endpunkte."
+      "en": "Monitors availability and account status of user-configured Xtream-compatible API endpoints.",
+      "de": "Überwacht Erreichbarkeit und Accountstatus benutzerdefinierter Xtream-kompatibler API-Endpunkte.",
+      "ru": "Отслеживает доступность и состояние учетных записей настроенных пользователем API-эндпоинтов, совместимых с Xtream.",
+      "pt": "Monitora a disponibilidade e o estado da conta de endpoints de API compatíveis com Xtream configurados pelo utilizador.",
+      "nl": "Bewaakt de bereikbaarheid en accountstatus van door de gebruiker ingestelde Xtream-compatibele API-eindpunten.",
+      "fr": "Surveille la disponibilité et l’état du compte des points de terminaison API compatibles Xtream configurés par l’utilisateur.",
+      "it": "Monitora la disponibilità e lo stato dell’account degli endpoint API compatibili con Xtream configurati dall’utente.",
+      "es": "Supervisa la disponibilidad y el estado de la cuenta de los endpoints de API compatibles con Xtream configurados por el usuario.",
+      "pl": "Monitoruje dostępność i stan konta skonfigurowanych przez użytkownika punktów końcowych API zgodnych z Xtream.",
+      "uk": "Відстежує доступність і стан облікових записів налаштованих користувачем API-ендпоінтів, сумісних з Xtream.",
+      "zh-cn": "监控用户配置的 Xtream 兼容 API 端点的可用性和账户状态。"
     },
     "authors": [
       "chrvidal"
     ],
-    "license": "MIT",
     "platform": "Javascript/Node.js",
     "mode": "daemon",
     "type": "multimedia",
@@ -32,17 +48,40 @@
     ],
     "globalDependencies": [
       {
-        "admin": ">=7.0.0"
+        "admin": ">=7.6.20"
       }
-    ]
+    ],
+    "news": {
+      "NEXT": {
+        "en": "Prepared the adapter for public repository review: metadata, translations, responsive Admin UI, managed timers and automated tests/CI.",
+        "de": "Adapter für die Prüfung im öffentlichen Repository vorbereitet: Metadaten, Übersetzungen, responsive Admin-Oberfläche, verwaltete Timer und automatisierte Tests/CI.",
+        "ru": "Адаптер подготовлен к проверке для публичного репозитория: метаданные, переводы, адаптивный интерфейс Admin, управляемые таймеры и автоматические тесты/CI.",
+        "pt": "Adaptador preparado para revisão no repositório público: metadados, traduções, interface Admin responsiva, temporizadores geridos e testes/CI automáticos.",
+        "nl": "Adapter voorbereid voor beoordeling in de openbare repository: metadata, vertalingen, responsieve Admin-UI, beheerde timers en geautomatiseerde tests/CI.",
+        "fr": "Adaptateur préparé pour la revue du dépôt public : métadonnées, traductions, interface Admin responsive, minuteries gérées et tests/CI automatisés.",
+        "it": "Adapter preparato per la revisione nel repository pubblico: metadati, traduzioni, interfaccia Admin responsive, timer gestiti e test/CI automatizzati.",
+        "es": "Adaptador preparado para la revisión del repositorio público: metadatos, traducciones, interfaz Admin adaptable, temporizadores gestionados y pruebas/CI automatizadas.",
+        "pl": "Adapter przygotowany do przeglądu w publicznym repozytorium: metadane, tłumaczenia, responsywny interfejs Admin, zarządzane timery oraz automatyczne testy/CI.",
+        "uk": "Адаптер підготовлено до перевірки для публічного репозиторію: метадані, переклади, адаптивний інтерфейс Admin, керовані таймери та автоматичні тести/CI.",
+        "zh-cn": "为公共仓库审核做好准备：补充元数据和翻译、响应式管理界面、受管计时器以及自动化测试/CI。"
+      }
+    },
+    "icon": "xtream-monitor.png",
+    "extIcon": "https://raw.githubusercontent.com/chrvidal/ioBroker.xtream-monitor/main/admin/xtream-monitor.png",
+    "readme": "https://github.com/chrvidal/ioBroker.xtream-monitor/blob/main/README.md",
+    "keywords": [
+      "xtream",
+      "monitoring",
+      "endpoint",
+      "api",
+      "availability"
+    ],
+    "licenseInformation": {
+      "type": "free",
+      "license": "MIT"
+    },
+    "tier": 3
   },
-  "encryptedNative": [
-    "servers.password"
-  ],
-  "protectedNative": [
-    "servers.username",
-    "servers.password"
-  ],
   "native": {
     "servers": [],
     "pollIntervalMinutes": 5,

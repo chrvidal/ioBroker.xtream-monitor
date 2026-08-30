@@ -37,7 +37,7 @@ type ErrorType =
     | "request";
 
 class XtreamMonitor extends utils.Adapter {
-    private pollTimer?: ReturnType<typeof setInterval>;
+    private pollTimer?: ioBroker.Interval;
     private readonly lastOnlineStates = new Map<string, boolean>();
     private servers: ServerConfig[] = [];
 
@@ -71,7 +71,7 @@ class XtreamMonitor extends utils.Adapter {
         await this.checkAllServers();
 
         const intervalMinutes = Math.max(1, Number(this.config.pollIntervalMinutes) || 5);
-        this.pollTimer = setInterval(() => {
+        this.pollTimer = this.setInterval(() => {
             void this.checkAllServers();
         }, intervalMinutes * 60_000);
     }
@@ -79,7 +79,7 @@ class XtreamMonitor extends utils.Adapter {
     private onUnload(callback: () => void): void {
         try {
             if (this.pollTimer) {
-                clearInterval(this.pollTimer);
+                this.clearInterval(this.pollTimer);
                 this.pollTimer = undefined;
             }
             callback();
@@ -412,7 +412,7 @@ class XtreamMonitor extends utils.Adapter {
         const now = Date.now();
         const timeoutMs = Math.max(1, Number(this.config.timeoutSeconds) || 10) * 1000;
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), timeoutMs);
+        const timeout = this.setTimeout(() => controller.abort(), timeoutMs);
 
         await this.setStateAsync(`${base}.lastCheck`, { val: now, ack: true });
 
@@ -420,7 +420,7 @@ class XtreamMonitor extends utils.Adapter {
             const response = await fetch(this.buildApiUrl(server), {
                 method: "GET",
                 headers: {
-                    "User-Agent": "ioBroker.xtream-monitor/0.2.4",
+                    "User-Agent": "ioBroker.xtream-monitor",
                     Accept: "application/json,text/plain,*/*",
                 },
                 signal: controller.signal,
@@ -487,7 +487,7 @@ class XtreamMonitor extends utils.Adapter {
             }
             return this.setOffline(server, "request", err.message || "Request failed");
         } finally {
-            clearTimeout(timeout);
+            this.clearTimeout(timeout);
         }
     }
 

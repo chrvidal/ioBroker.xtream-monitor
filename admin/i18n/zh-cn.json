@@ -1,0 +1,14 @@
+{
+  "Servers": "服务器",
+  "Enabled": "启用",
+  "Name": "名称",
+  "Host / Server URL": "主机 / 服务器 URL",
+  "Username": "用户名",
+  "Password": "密码",
+  "Check interval": "检查间隔",
+  "Minutes between checks": "检查之间的分钟数",
+  "Request timeout": "请求超时",
+  "Log online/offline status changes": "记录在线/离线状态变化",
+  "Disabled by default to avoid log spam. Only real status transitions are logged.": "默认关闭以避免日志刷屏，仅记录实际状态变化。",
+  "Add all Xtream-compatible endpoints that should be monitored. Technical server IDs are managed internally.": "添加所有需要监控的 Xtream 兼容端点。技术服务器 ID 由适配器内部管理。"
+}

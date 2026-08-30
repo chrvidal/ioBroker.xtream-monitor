@@ -1,0 +1,14 @@
+{
+  "Servers": "Servers",
+  "Enabled": "Ingeschakeld",
+  "Name": "Naam",
+  "Host / Server URL": "Host / server-URL",
+  "Username": "Gebruikersnaam",
+  "Password": "Wachtwoord",
+  "Check interval": "Controle-interval",
+  "Minutes between checks": "Minuten tussen controles",
+  "Request timeout": "Time-out voor aanvraag",
+  "Log online/offline status changes": "Online/offline-statuswijzigingen loggen",
+  "Disabled by default to avoid log spam. Only real status transitions are logged.": "Standaard uitgeschakeld om logspam te voorkomen. Alleen echte statuswijzigingen worden gelogd.",
+  "Add all Xtream-compatible endpoints that should be monitored. Technical server IDs are managed internally.": "Voeg alle Xtream-compatibele eindpunten toe die bewaakt moeten worden. Technische server-ID’s worden intern beheerd."
+}

@@ -1,0 +1,14 @@
+{
+  "Servers": "Servidores",
+  "Enabled": "Activado",
+  "Name": "Nombre",
+  "Host / Server URL": "Host / URL del servidor",
+  "Username": "Usuario",
+  "Password": "Contraseña",
+  "Check interval": "Intervalo de comprobación",
+  "Minutes between checks": "Minutos entre comprobaciones",
+  "Request timeout": "Tiempo de espera de la solicitud",
+  "Log online/offline status changes": "Registrar cambios de estado online/offline",
+  "Disabled by default to avoid log spam. Only real status transitions are logged.": "Desactivado por defecto para evitar saturar el registro. Solo se registran cambios reales de estado.",
+  "Add all Xtream-compatible endpoints that should be monitored. Technical server IDs are managed internally.": "Añade todos los endpoints compatibles con Xtream que deban supervisarse. Los ID técnicos de servidor se gestionan internamente."
+}

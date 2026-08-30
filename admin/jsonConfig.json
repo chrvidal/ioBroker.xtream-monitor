@@ -5,7 +5,12 @@
     "intro": {
       "type": "staticText",
       "newLine": true,
-      "text": "Add all Xtream-compatible endpoints that should be monitored. Technical server IDs are managed internally."
+      "text": "Add all Xtream-compatible endpoints that should be monitored. Technical server IDs are managed internally.",
+      "xs": 12,
+      "sm": 12,
+      "md": 12,
+      "lg": 12,
+      "xl": 12
     },
     "servers": {
       "type": "table",
@@ -55,6 +60,13 @@
           "width": 180,
           "default": ""
         }
+      ],
+      "xs": 12,
+      "md": 12,
+      "lg": 12,
+      "xl": 12,
+      "encryptedAttributes": [
+        "password"
       ]
     },
     "pollIntervalMinutes": {
@@ -67,7 +79,10 @@
       "unit": "min",
       "newLine": true,
       "sm": 12,
-      "md": 4
+      "md": 4,
+      "xs": 12,
+      "lg": 4,
+      "xl": 4
     },
     "timeoutSeconds": {
       "type": "number",
@@ -78,7 +93,10 @@
       "unit": "s",
       "newLine": false,
       "sm": 12,
-      "md": 4
+      "md": 4,
+      "xs": 12,
+      "lg": 4,
+      "xl": 4
     },
     "logStatusChanges": {
       "type": "checkbox",
@@ -86,7 +104,10 @@
       "help": "Disabled by default to avoid log spam. Only real status transitions are logged.",
       "newLine": false,
       "sm": 12,
-      "md": 4
+      "md": 4,
+      "xs": 12,
+      "lg": 4,
+      "xl": 4
     }
   }
 }
