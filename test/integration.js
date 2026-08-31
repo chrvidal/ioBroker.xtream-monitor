@@ -177,6 +177,28 @@ tests.integration(adapterDir, {
                 await harness.startAdapterAndWait(true);
 
                 const prefix = `${adapterName}.0`;
+
+                // CI_WAIT_FOR_FIRST_POLL
+                // startAdapterAndWait() only waits for adapter startup.
+                // Wait until the first asynchronous Xtream poll has actually
+                // written all values which are asserted below.
+                await waitFor(async () => {
+                    const online = await getState(harness, `${prefix}.servers.server1.online`);
+                    const activeConnections = await getState(harness, `${prefix}.servers.server1.activeConnections`);
+                    const maxConnections = await getState(harness, `${prefix}.servers.server1.maxConnections`);
+                    const inactiveError = await getState(harness, `${prefix}.servers.server2.errorType`);
+                    const onlineSummary = await getState(harness, `${prefix}.info.onlineCount`);
+                    const offlineSummary = await getState(harness, `${prefix}.info.offlineCount`);
+
+                    return (
+                        online?.val === true &&
+                        activeConnections?.val === 1 &&
+                        maxConnections?.val === 2 &&
+                        inactiveError?.val === 'inactive' &&
+                        onlineSummary?.val === 1 &&
+                        offlineSummary?.val === 1
+                    );
+                }, 10_000);
                 const online1 = await getState(harness, `${prefix}.servers.server1.online`);
                 const status1 = await getState(harness, `${prefix}.servers.server1.status`);
                 const activeCons = await getState(harness, `${prefix}.servers.server1.activeConnections`);
