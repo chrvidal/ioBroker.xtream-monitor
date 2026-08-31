@@ -42,14 +42,29 @@ class XtreamMonitor extends utils.Adapter {
             name: 'xtream-monitor',
         });
 
-        this.on('ready', this.onReady.bind(this));
+        this.on('ready', () => {
+            void this.onReady().catch(error => {
+                if (this.stopping) {
+                    return;
+                }
+
+                const message =
+                    error instanceof Error ? `${error.message}${error.stack ? `\n${error.stack}` : ''}` : String(error);
+
+                this.log.error(`Startup failed: ${message}`);
+            });
+        });
         this.on('unload', this.onUnload.bind(this));
     }
 
     private async onReady(): Promise<void> {
         this.stopping = false;
 
-        await this.ensurePersistentServerIds();
+        if (await this.ensurePersistentServerIds()) {
+            this.log.info('Persistent server IDs were stored. Waiting for ioBroker to restart the instance.');
+            return;
+        }
+
         this.servers = this.getConfiguredServers();
 
         await this.createInfoObjects();
@@ -87,12 +102,12 @@ class XtreamMonitor extends utils.Adapter {
         }
     }
 
-    private async ensurePersistentServerIds(): Promise<void> {
+    private async ensurePersistentServerIds(): Promise<boolean> {
         const objectId = `system.adapter.${this.namespace}`;
         const instanceObject = await this.getForeignObjectAsync(objectId);
 
         if (!instanceObject?.native || !Array.isArray(instanceObject.native.servers)) {
-            return;
+            return false;
         }
 
         const rows = instanceObject.native.servers as Array<Record<string, unknown>>;
@@ -131,7 +146,7 @@ class XtreamMonitor extends utils.Adapter {
         }
 
         if (!changed) {
-            return;
+            return false;
         }
 
         await this.setForeignObjectAsync(objectId, instanceObject);
@@ -149,6 +164,7 @@ class XtreamMonitor extends utils.Adapter {
         }
 
         this.log.info('Assigned persistent IDs to server rows with missing or duplicate IDs.');
+        return true;
     }
 
     private getConfiguredServers(): ServerConfig[] {
