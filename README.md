@@ -90,6 +90,10 @@ npx @iobroker/repochecker https://github.com/chrvidal/ioBroker.xtream-monitor ma
 
 ## Changelog
 
+
+### **WORK IN PROGRESS**
+- (ioBroker-Bot) Adapter requires admin >= 7.8.23 now.
+
 ### 0.2.7 (2026-08-30)
 
 - Fixed repository metadata reported by the ioBroker repository checker.
