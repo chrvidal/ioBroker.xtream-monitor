@@ -69,6 +69,7 @@ xtream-monitor.0
 - The adapter contacts only endpoints explicitly configured by the user.
 - Credentials are never intentionally written to the ioBroker log.
 - Password columns are configured for encrypted storage in the Admin table.
+- The complete server configuration is protected from access by other adapters via `protectedNative`.
 - No media content is fetched for monitoring; the adapter queries account/status metadata via the compatible API endpoint.
 
 ## Development
@@ -89,6 +90,16 @@ npx @iobroker/repochecker https://github.com/chrvidal/ioBroker.xtream-monitor ma
 ```
 
 ## Changelog
+
+### 0.2.8 (work in progress)
+
+- Changed polling to schedule the next check only after the current cycle has finished, preventing overlapping API requests.
+- Abort active HTTP requests during adapter unload for clean Compact Mode shutdown.
+- Preserve `offlineSince` across adapter restarts while an endpoint remains offline.
+- Added the explicit `info` channel and corrected per-server ioBroker state roles.
+- Changed `expirationText` to a language-neutral ISO timestamp.
+- Protected the configured server table from access by other adapters.
+- Added integration tests with local mock API endpoints, including clean-shutdown behavior.
 
 ### 0.2.7 (2026-08-30)
 

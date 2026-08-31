@@ -1,7 +1,7 @@
 import * as utils from "@iobroker/adapter-core";
 
 interface XtreamUserInfo {
-    auth?: number | string;
+    auth?: number | string | boolean;
     status?: string;
     exp_date?: string | number | null;
     active_cons?: string | number;
@@ -37,9 +37,12 @@ type ErrorType =
     | "request";
 
 class XtreamMonitor extends utils.Adapter {
-    private pollTimer?: ioBroker.Interval;
+    private pollTimer?: ioBroker.Timeout;
     private readonly lastOnlineStates = new Map<string, boolean>();
+    private readonly offlineSinceStates = new Map<string, number>();
+    private readonly activeControllers = new Set<AbortController>();
     private servers: ServerConfig[] = [];
+    private stopping = false;
 
     public constructor(options: Partial<utils.AdapterOptions> = {}) {
         super({
@@ -52,6 +55,8 @@ class XtreamMonitor extends utils.Adapter {
     }
 
     private async onReady(): Promise<void> {
+        this.stopping = false;
+
         await this.ensurePersistentServerIds();
         this.servers = this.getConfiguredServers();
 
@@ -68,22 +73,24 @@ class XtreamMonitor extends utils.Adapter {
             await this.createServerObjects(server);
         }
 
-        await this.checkAllServers();
-
-        const intervalMinutes = Math.max(1, Number(this.config.pollIntervalMinutes) || 5);
-        this.pollTimer = this.setInterval(() => {
-            void this.checkAllServers();
-        }, intervalMinutes * 60_000);
+        await this.restoreRuntimeStates();
+        await this.runCheckCycle();
     }
 
     private onUnload(callback: () => void): void {
+        this.stopping = true;
+
         try {
             if (this.pollTimer) {
-                this.clearInterval(this.pollTimer);
+                this.clearTimeout(this.pollTimer);
                 this.pollTimer = undefined;
             }
-            callback();
-        } catch {
+
+            for (const controller of this.activeControllers) {
+                controller.abort();
+            }
+            this.activeControllers.clear();
+        } finally {
             callback();
         }
     }
@@ -138,7 +145,7 @@ class XtreamMonitor extends utils.Adapter {
         await this.setForeignObjectAsync(objectId, instanceObject);
 
         // Keep the in-memory config in sync for the current run. Password values in the
-        // stored instance object remain untouched (and therefore stay encrypted).
+        // stored instance object remain untouched and therefore stay encrypted by Admin.
         if (Array.isArray(this.config.servers)) {
             this.config.servers.forEach((row, index) => {
                 if (rows[index]?.id) {
@@ -235,6 +242,12 @@ class XtreamMonitor extends utils.Adapter {
     }
 
     private async createInfoObjects(): Promise<void> {
+        await this.extendObjectAsync("info", {
+            type: "channel",
+            common: { name: "Information" },
+            native: {},
+        });
+
         await this.extendObjectAsync("servers", {
             type: "channel",
             common: { name: "Servers" },
@@ -337,14 +350,14 @@ class XtreamMonitor extends utils.Adapter {
             def: string | number | boolean;
             unit?: string;
         }> = [
-            { id: "online", name: "Account online", type: "boolean", role: "indicator.connected", def: false },
+            { id: "online", name: "Account online", type: "boolean", role: "indicator.reachable", def: false },
             { id: "status", name: "Account status", type: "string", role: "text", def: "unknown" },
-            { id: "responseMs", name: "Response time", type: "number", role: "value.interval", def: 0, unit: "ms" },
+            { id: "responseMs", name: "Response time", type: "number", role: "time.span", def: 0, unit: "ms" },
             { id: "activeConnections", name: "Active connections", type: "number", role: "value", def: 0 },
             { id: "maxConnections", name: "Maximum connections", type: "number", role: "value", def: 0 },
             { id: "expiration", name: "Expiration timestamp", type: "number", role: "date", def: 0 },
             { id: "expirationText", name: "Expiration date", type: "string", role: "text", def: "unknown" },
-            { id: "daysRemaining", name: "Days remaining", type: "number", role: "value.interval", def: 0, unit: "d" },
+            { id: "daysRemaining", name: "Days remaining", type: "number", role: "value", def: 0, unit: "d" },
             { id: "lastCheck", name: "Last check", type: "number", role: "date", def: 0 },
             { id: "lastOnline", name: "Last online", type: "number", role: "date", def: 0 },
             { id: "offlineSince", name: "Offline since", type: "number", role: "date", def: 0 },
@@ -368,6 +381,24 @@ class XtreamMonitor extends utils.Adapter {
         }
     }
 
+    private async restoreRuntimeStates(): Promise<void> {
+        for (const server of this.servers) {
+            const base = `servers.${server.id}`;
+            const [onlineState, offlineSinceState] = await Promise.all([
+                this.getStateAsync(`${base}.online`),
+                this.getStateAsync(`${base}.offlineSince`),
+            ]);
+
+            if (typeof onlineState?.val === "boolean") {
+                this.lastOnlineStates.set(server.id, onlineState.val);
+            }
+
+            if (typeof offlineSinceState?.val === "number" && offlineSinceState.val > 0) {
+                this.offlineSinceStates.set(server.id, offlineSinceState.val);
+            }
+        }
+    }
+
     private normalizeHost(host: string): string {
         const trimmed = host.trim().replace(/\/+$/, "");
         if (/^https?:\/\//i.test(trimmed)) {
@@ -384,12 +415,54 @@ class XtreamMonitor extends utils.Adapter {
         return url.toString();
     }
 
+    private async runCheckCycle(): Promise<void> {
+        if (this.stopping) {
+            return;
+        }
+
+        try {
+            await this.checkAllServers();
+        } catch (error) {
+            if (!this.stopping) {
+                const message = error instanceof Error ? error.message : String(error);
+                this.log.error(`Unexpected error while checking configured servers: ${message}`);
+            }
+        } finally {
+            if (!this.stopping) {
+                this.scheduleNextCheck();
+            }
+        }
+    }
+
+    private scheduleNextCheck(): void {
+        if (this.stopping || this.servers.length === 0) {
+            return;
+        }
+
+        const intervalMinutes = Math.max(1, Number(this.config.pollIntervalMinutes) || 5);
+        this.pollTimer = this.setTimeout(() => {
+            this.pollTimer = undefined;
+            void this.runCheckCycle();
+        }, intervalMinutes * 60_000);
+    }
+
     private async checkAllServers(): Promise<void> {
+        if (this.stopping) {
+            return;
+        }
+
         const results = await Promise.all(this.servers.map(server => this.checkServer(server)));
-        await this.setSummary(results);
+
+        if (!this.stopping) {
+            await this.setSummary(results);
+        }
     }
 
     private async setSummary(results: CheckResult[]): Promise<void> {
+        if (this.stopping) {
+            return;
+        }
+
         const enabledCount = this.servers.length;
         const onlineCount = results.filter(result => result.online).length;
         const offlineCount = Math.max(0, enabledCount - onlineCount);
@@ -406,15 +479,26 @@ class XtreamMonitor extends utils.Adapter {
         ]);
     }
 
+    private currentResult(server: ServerConfig): CheckResult {
+        return {
+            id: server.id,
+            online: this.lastOnlineStates.get(server.id) === true,
+        };
+    }
+
     private async checkServer(server: ServerConfig): Promise<CheckResult> {
+        if (this.stopping) {
+            return this.currentResult(server);
+        }
+
         const base = `servers.${server.id}`;
         const started = Date.now();
-        const now = Date.now();
         const timeoutMs = Math.max(1, Number(this.config.timeoutSeconds) || 10) * 1000;
         const controller = new AbortController();
-        const timeout = this.setTimeout(() => controller.abort(), timeoutMs);
+        this.activeControllers.add(controller);
 
-        await this.setStateAsync(`${base}.lastCheck`, { val: now, ack: true });
+        const timeout = this.setTimeout(() => controller.abort(), timeoutMs);
+        await this.setStateAsync(`${base}.lastCheck`, { val: started, ack: true });
 
         try {
             const response = await fetch(this.buildApiUrl(server), {
@@ -426,6 +510,10 @@ class XtreamMonitor extends utils.Adapter {
                 signal: controller.signal,
                 redirect: "follow",
             });
+
+            if (this.stopping) {
+                return this.currentResult(server);
+            }
 
             const responseMs = Date.now() - started;
             await this.setStateAsync(`${base}.responseMs`, { val: responseMs, ack: true });
@@ -441,12 +529,17 @@ class XtreamMonitor extends utils.Adapter {
                 return this.setOffline(server, "invalid_json", "Invalid JSON response");
             }
 
+            if (this.stopping) {
+                return this.currentResult(server);
+            }
+
             if (!data.user_info) {
                 return this.setOffline(server, "invalid_response", "user_info missing");
             }
 
             const user = data.user_info;
-            const authenticated = String(user.auth ?? "0") === "1";
+            const authValue = user.auth;
+            const authenticated = authValue === true || String(authValue ?? "0") === "1";
             const status = String(user.status ?? "unknown");
             const isActive = authenticated && status.toLowerCase() === "active";
 
@@ -458,7 +551,7 @@ class XtreamMonitor extends utils.Adapter {
                 ? Math.max(0, Math.ceil((expirationMs - Date.now()) / 86_400_000))
                 : 0;
             const expirationText = expirationMs > 0
-                ? new Date(expirationMs).toLocaleString("de-DE")
+                ? new Date(expirationMs).toISOString()
                 : "unknown";
 
             await Promise.all([
@@ -476,6 +569,10 @@ class XtreamMonitor extends utils.Adapter {
 
             return this.setOnline(server, status);
         } catch (error) {
+            if (this.stopping) {
+                return this.currentResult(server);
+            }
+
             const err = error as Error & { cause?: { code?: string } };
             const code = err.cause?.code;
 
@@ -488,10 +585,15 @@ class XtreamMonitor extends utils.Adapter {
             return this.setOffline(server, "request", err.message || "Request failed");
         } finally {
             this.clearTimeout(timeout);
+            this.activeControllers.delete(controller);
         }
     }
 
     private async setOnline(server: ServerConfig, status: string): Promise<CheckResult> {
+        if (this.stopping) {
+            return this.currentResult(server);
+        }
+
         const base = `servers.${server.id}`;
         const now = Date.now();
 
@@ -503,13 +605,19 @@ class XtreamMonitor extends utils.Adapter {
             this.setStateAsync(`${base}.offlineSince`, { val: 0, ack: true }),
         ]);
 
+        this.offlineSinceStates.delete(server.id);
         this.logTransition(server, true);
         return { id: server.id, online: true };
     }
 
     private async setOffline(server: ServerConfig, errorType: ErrorType, status: string): Promise<CheckResult> {
+        if (this.stopping) {
+            return this.currentResult(server);
+        }
+
         const base = `servers.${server.id}`;
         const previousOnline = this.lastOnlineStates.get(server.id);
+        const existingOfflineSince = this.offlineSinceStates.get(server.id) ?? 0;
 
         await Promise.all([
             this.setStateAsync(`${base}.online`, { val: false, ack: true }),
@@ -517,8 +625,10 @@ class XtreamMonitor extends utils.Adapter {
             this.setStateAsync(`${base}.errorType`, { val: errorType, ack: true }),
         ]);
 
-        if (previousOnline !== false) {
-            await this.setStateAsync(`${base}.offlineSince`, { val: Date.now(), ack: true });
+        if (previousOnline !== false || existingOfflineSince <= 0) {
+            const offlineSince = Date.now();
+            await this.setStateAsync(`${base}.offlineSince`, { val: offlineSince, ack: true });
+            this.offlineSinceStates.set(server.id, offlineSince);
         }
 
         this.logTransition(server, false);

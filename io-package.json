@@ -1,7 +1,7 @@
 {
   "common": {
     "name": "xtream-monitor",
-    "version": "0.2.7",
+    "version": "0.2.8",
     "titleLang": {
       "en": "Xtream Monitor",
       "de": "Xtream Monitor",
@@ -52,6 +52,19 @@
       }
     ],
     "news": {
+      "0.2.8": {
+        "en": "Improved polling and shutdown safety, preserved offline timestamps across restarts, corrected state roles and added API behavior tests.",
+        "de": "Polling und sauberes Beenden verbessert, Offline-Zeitpunkte über Neustarts erhalten, State-Rollen korrigiert und API-Verhaltenstests ergänzt.",
+        "ru": "Улучшены опрос и безопасное завершение работы, сохранение времени офлайн после перезапуска, исправлены роли состояний и добавлены тесты API.",
+        "pt": "Melhorados o polling e o encerramento seguro, preservados os horários offline após reinícios, corrigidas as funções dos estados e adicionados testes da API.",
+        "nl": "Polling en veilig afsluiten verbeterd, offline-tijdstippen na herstarts behouden, state-rollen gecorrigeerd en API-gedragstests toegevoegd.",
+        "fr": "Amélioration de l’interrogation et de l’arrêt propre, conservation des horodatages hors ligne après redémarrage, correction des rôles d’état et ajout de tests API.",
+        "it": "Migliorati polling e arresto sicuro, mantenuti i timestamp offline dopo i riavvii, corretti i ruoli degli stati e aggiunti test del comportamento API.",
+        "es": "Mejorados el sondeo y el cierre seguro, conservadas las marcas de tiempo sin conexión tras reinicios, corregidos los roles de estado y añadidas pruebas de la API.",
+        "pl": "Ulepszono odpytywanie i bezpieczne zamykanie, zachowano czas przejścia offline po restartach, poprawiono role stanów i dodano testy zachowania API.",
+        "uk": "Покращено опитування та безпечне завершення роботи, збереження часу офлайн після перезапуску, виправлено ролі станів і додано тести API.",
+        "zh-cn": "改进了轮询和安全停止逻辑，重启后保留离线时间，修正了状态角色，并增加了 API 行为测试。"
+      },
       "0.2.7": {
         "en": "Fixed repository metadata for ioBroker review, added valid release news metadata, Dependabot cooldown and license copyright information.",
         "de": "Repository-Metadaten für die ioBroker-Prüfung korrigiert sowie gültige Release-News, Dependabot-Cooldown und Copyright-Angabe zur Lizenz ergänzt.",
@@ -90,5 +103,9 @@
     "nextServerId": 1
   },
   "objects": [],
-  "instanceObjects": []
+  "instanceObjects": [],
+  "protectedNative": [
+    "servers",
+    "password"
+  ]
 }
