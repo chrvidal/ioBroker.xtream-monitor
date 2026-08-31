@@ -131,6 +131,8 @@ npx @iobroker/repochecker https://github.com/chrvidal/ioBroker.xtream-monitor ma
 
 - Added monitoring of multiple endpoints in one adapter instance.
 
+[Older changelogs can be found there](CHANGELOG_OLD.md)
+
 ## License
 
 MIT License. See [LICENSE](LICENSE).
