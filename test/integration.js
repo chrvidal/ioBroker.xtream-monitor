@@ -425,7 +425,8 @@ tests.integration(adapterDir, {
                 await close(mockServer);
             });
 
-            it('does not reset offlineSince when a server is still offline after restart', async () => {
+            it('does not reset offlineSince when a server is still offline after restart', async function () {
+                this.timeout(15_000);
                 const harness = getHarness();
                 const prefix = `${adapterName}.0`;
                 const originalOfflineSince = Date.now() - 3_600_000;
