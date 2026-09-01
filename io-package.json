@@ -1,7 +1,7 @@
 {
   "common": {
     "name": "xtream-monitor",
-    "version": "0.2.8",
+    "version": "0.2.9",
     "titleLang": {
       "en": "Xtream Monitor",
       "de": "Xtream Monitor",
@@ -52,6 +52,19 @@
       }
     ],
     "news": {
+      "0.2.9": {
+        "en": "Fixed startup handling during persistent server ID migration, added regression tests for password preservation and scheduled multi-server polling, and corrected protected credential metadata.",
+        "de": "Die Startbehandlung bei der Migration dauerhafter Server-IDs wurde korrigiert, Regressionstests für den Passworterhalt und das geplante Multi-Server-Polling wurden ergänzt und die Metadaten für geschützte Zugangsdaten wurden berichtigt.",
+        "ru": "Исправлена обработка запуска при миграции постоянных идентификаторов серверов, добавлены регрессионные тесты сохранения паролей и планового опроса нескольких серверов, а также исправлены метаданные защищённых учётных данных.",
+        "pt": "Corrigido o tratamento do arranque durante a migração de IDs persistentes dos servidores, adicionados testes de regressão para preservação de palavras-passe e polling agendado de vários servidores, e corrigidos os metadados das credenciais protegidas.",
+        "nl": "De opstartafhandeling tijdens de migratie van permanente server-ID's is gecorrigeerd, regressietests voor wachtwoordbehoud en geplande polling van meerdere servers zijn toegevoegd en de metadata voor beveiligde inloggegevens is verbeterd.",
+        "fr": "Correction du démarrage pendant la migration des identifiants persistants des serveurs, ajout de tests de régression pour la conservation des mots de passe et l’interrogation planifiée de plusieurs serveurs, et correction des métadonnées des identifiants protégés.",
+        "it": "Corretta la gestione dell’avvio durante la migrazione degli ID server persistenti, aggiunti test di regressione per la conservazione delle password e il polling pianificato di più server e corretti i metadati delle credenziali protette.",
+        "es": "Corregido el inicio durante la migración de identificadores persistentes de servidores, añadidas pruebas de regresión para conservar contraseñas y comprobar el sondeo programado de varios servidores, y corregidos los metadatos de credenciales protegidas.",
+        "pl": "Poprawiono obsługę uruchamiania podczas migracji trwałych identyfikatorów serwerów, dodano testy regresji zachowania haseł i zaplanowanego odpytywania wielu serwerów oraz poprawiono metadane chronionych danych logowania.",
+        "uk": "Виправлено обробку запуску під час міграції постійних ідентифікаторів серверів, додано регресійні тести збереження паролів і планового опитування кількох серверів та виправлено метадані захищених облікових даних.",
+        "zh-cn": "修复了持久服务器 ID 迁移期间的启动处理，增加了密码保留和多服务器定时轮询的回归测试，并修正了受保护凭据的元数据。"
+      },
       "0.2.8": {
         "en": "Improved polling and shutdown safety, preserved offline timestamps across restarts, corrected state roles and added API behavior tests.",
         "de": "Polling und sauberes Beenden verbessert, Offline-Zeitpunkte über Neustarts erhalten, State-Rollen korrigiert und API-Verhaltenstests ergänzt.",
@@ -105,7 +118,6 @@
   "objects": [],
   "instanceObjects": [],
   "protectedNative": [
-    "servers",
-    "password"
+    "servers"
   ]
 }

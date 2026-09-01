@@ -91,7 +91,13 @@ npx @iobroker/repochecker https://github.com/chrvidal/ioBroker.xtream-monitor ma
 
 ## Changelog
 
-### 0.2.8 (work in progress)
+### 0.2.9 (2026-09-01)
+
+- Fixed startup handling during persistent server ID migration.
+- Added regression coverage for password preservation and scheduled multi-server polling.
+- Corrected protected configuration metadata for multi-server credentials.
+
+### 0.2.8 (2026-08-31)
 
 - Changed polling to schedule the next check only after the current cycle has finished, preventing overlapping API requests.
 - Abort active HTTP requests during adapter unload for clean Compact Mode shutdown.
