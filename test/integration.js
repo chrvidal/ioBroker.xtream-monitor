@@ -241,6 +241,164 @@ tests.integration(adapterDir, {
             });
         });
 
+        suite('Persistent server ID migration', getHarness => {
+            it('assigns missing and duplicate IDs without changing passwords', async function () {
+                this.timeout(15_000);
+                const harness = getHarness();
+                const objectId = `system.adapter.${adapterName}.0`;
+                const passwords = ['migration-secret-1', 'migration-secret-2', 'migration-secret-3'];
+
+                await harness.changeAdapterConfig(adapterName, {
+                    native: {
+                        servers: [
+                            {
+                                enabled: false,
+                                id: 'server1',
+                                name: 'Existing ID',
+                                host: 'http://127.0.0.1',
+                                username: 'migration-user-1',
+                                password: passwords[0],
+                            },
+                            {
+                                enabled: false,
+                                id: '',
+                                name: 'Missing ID',
+                                host: 'http://127.0.0.1',
+                                username: 'migration-user-2',
+                                password: passwords[1],
+                            },
+                            {
+                                enabled: false,
+                                id: 'server1',
+                                name: 'Duplicate ID',
+                                host: 'http://127.0.0.1',
+                                username: 'migration-user-3',
+                                password: passwords[2],
+                            },
+                        ],
+                        pollIntervalMinutes: 60,
+                        timeoutSeconds: 5,
+                        logStatusChanges: false,
+                        nextServerId: 2,
+                    },
+                });
+
+                await harness.startAdapterAndWait(false);
+
+                await waitFor(async () => {
+                    const instanceObject = await getObject(harness, objectId);
+                    const rows = instanceObject?.native?.servers;
+                    return (
+                        Array.isArray(rows) &&
+                        rows.length === 3 &&
+                        rows.every(row => typeof row.id === 'string' && row.id.length > 0) &&
+                        new Set(rows.map(row => row.id)).size === 3
+                    );
+                }, 10_000);
+
+                const instanceObject = await getObject(harness, objectId);
+                const rows = instanceObject?.native?.servers;
+                assert.ok(Array.isArray(rows));
+                assert.deepEqual(
+                    rows.map(row => row.id),
+                    ['server1', 'server2', 'server3'],
+                );
+                assert.deepEqual(
+                    rows.map(row => Buffer.from(String(row.password), 'utf8')),
+                    passwords.map(password => Buffer.from(password, 'utf8')),
+                );
+                assert.equal(instanceObject.native.nextServerId, 4);
+            });
+        });
+
+        suite('Multi-server polling regression', getHarness => {
+            let mockServer;
+            let baseUrl;
+            let requestCount;
+
+            before(async () => {
+                requestCount = 0;
+                mockServer = http.createServer((request, response) => {
+                    const url = new URL(request.url, 'http://127.0.0.1');
+                    assert.equal(url.pathname, '/player_api.php');
+                    assert.equal(url.searchParams.get('password'), 'test-secret');
+                    assert.match(String(url.searchParams.get('username')), /^active-user-[123]$/);
+                    requestCount++;
+
+                    response.setHeader('Content-Type', 'application/json');
+                    response.end(
+                        JSON.stringify({
+                            user_info: {
+                                auth: 1,
+                                status: 'Active',
+                                exp_date: String(Math.floor((Date.now() + 30 * 86_400_000) / 1000)),
+                                active_cons: '0',
+                                max_connections: '1',
+                            },
+                        }),
+                    );
+                });
+                baseUrl = await listen(mockServer);
+            });
+
+            after(async () => {
+                await close(mockServer);
+            });
+
+            it('keeps a 3 online / 1 offline summary after a scheduled follow-up poll', async function () {
+                this.timeout(80_000);
+                const harness = getHarness();
+                const prefix = `${adapterName}.0`;
+                const servers = [1, 2, 3].map(number => ({
+                    enabled: true,
+                    id: `server${number}`,
+                    name: `Active test server ${number}`,
+                    host: baseUrl,
+                    username: `active-user-${number}`,
+                    password: 'test-secret',
+                }));
+                servers.push({
+                    enabled: true,
+                    id: 'server4',
+                    name: 'Unreachable test server',
+                    host: 'http://127.0.0.1:1',
+                    username: 'offline-user',
+                    password: 'test-secret',
+                });
+
+                await harness.changeAdapterConfig(adapterName, {
+                    native: {
+                        servers,
+                        pollIntervalMinutes: 1,
+                        timeoutSeconds: 5,
+                        logStatusChanges: false,
+                        nextServerId: 5,
+                    },
+                });
+
+                await harness.startAdapterAndWait(true);
+
+                const summaryIsCorrect = async () => {
+                    const connection = await getState(harness, `${prefix}.info.connection`);
+                    const allOnline = await getState(harness, `${prefix}.info.allOnline`);
+                    const onlineCount = await getState(harness, `${prefix}.info.onlineCount`);
+                    const offlineCount = await getState(harness, `${prefix}.info.offlineCount`);
+                    return (
+                        connection?.val === true &&
+                        allOnline?.val === false &&
+                        onlineCount?.val === 3 &&
+                        offlineCount?.val === 1
+                    );
+                };
+
+                await waitFor(async () => requestCount >= 3 && (await summaryIsCorrect()), 10_000);
+                await waitFor(async () => requestCount >= 6 && (await summaryIsCorrect()), 70_000, 100);
+
+                assert.ok(requestCount >= 6, `Expected at least 6 mock requests, received ${requestCount}`);
+                assert.equal(await summaryIsCorrect(), true);
+            });
+        });
+
         suite('Offline timestamp persistence', getHarness => {
             let mockServer;
             let baseUrl;
@@ -267,7 +425,8 @@ tests.integration(adapterDir, {
                 await close(mockServer);
             });
 
-            it('does not reset offlineSince when a server is still offline after restart', async () => {
+            it('does not reset offlineSince when a server is still offline after restart', async function () {
+                this.timeout(15_000);
                 const harness = getHarness();
                 const prefix = `${adapterName}.0`;
                 const originalOfflineSince = Date.now() - 3_600_000;
