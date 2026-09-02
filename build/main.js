@@ -41,6 +41,7 @@ class XtreamMonitor extends utils.Adapter {
     activeControllers = new Set();
     servers = [];
     stopping = false;
+    systemSecret = '';
     constructor(options = {}) {
         super({
             ...options,
@@ -59,11 +60,13 @@ class XtreamMonitor extends utils.Adapter {
     }
     async onReady() {
         this.stopping = false;
+        await this.loadSystemSecret();
         if (await this.ensurePersistentServerIds()) {
             this.log.info('Persistent server IDs were stored. Waiting for ioBroker to restart the instance.');
             return;
         }
         this.servers = this.getConfiguredServers();
+        await this.removeStaleServerObjects();
         await this.createInfoObjects();
         await this.removeLegacyObjects();
         if (this.servers.length === 0) {
@@ -208,6 +211,37 @@ class XtreamMonitor extends utils.Adapter {
             .replace(/^[_-]+|[_-]+$/g, '')
             .slice(0, 64);
     }
+    async removeStaleServerObjects() {
+        const keepIds = new Set(this.servers.map(server => server.id));
+        const configuredRows = Array.isArray(this.config.servers) ? this.config.servers : [];
+        for (const row of configuredRows) {
+            const id = this.sanitizeId(String(row.id ?? ''));
+            if (id) {
+                keepIds.add(id);
+            }
+        }
+        const objects = await this.getAdapterObjectsAsync();
+        const prefix = `${this.namespace}.servers.`;
+        const staleIds = new Set();
+        for (const objectId of Object.keys(objects)) {
+            if (!objectId.startsWith(prefix)) {
+                continue;
+            }
+            const relative = objectId.slice(prefix.length);
+            const serverId = relative.split('.')[0];
+            if (serverId && !keepIds.has(serverId)) {
+                staleIds.add(serverId);
+            }
+        }
+        for (const serverId of staleIds) {
+            this.log.info(`Removing objects for deleted server "${serverId}".`);
+            await this.delObjectAsync(`servers.${serverId}`, {
+                recursive: true,
+            });
+            this.lastOnlineStates.delete(serverId);
+            this.offlineSinceStates.delete(serverId);
+        }
+    }
     async removeLegacyObjects() {
         const legacy = await this.getObjectAsync('account');
         if (legacy) {
@@ -350,6 +384,33 @@ class XtreamMonitor extends utils.Adapter {
             }
         }
     }
+    async loadSystemSecret() {
+        try {
+            const systemConfig = await this.getForeignObjectAsync('system.config');
+            const secret = systemConfig?.native?.secret;
+            if (typeof secret === 'string' && secret.length > 0) {
+                this.systemSecret = secret;
+            }
+        }
+        catch (error) {
+            const message = error instanceof Error ? error.message : String(error);
+            this.log.debug(`Could not read ioBroker system secret: ${message}`);
+        }
+    }
+    getPasswordFallback(password) {
+        if (!password || !this.systemSecret) {
+            return undefined;
+        }
+        // ioBroker json-config currently has a regression for encrypted
+        // attributes inside tables. With legacy encryption a saved password
+        // can therefore alternate between plaintext and XOR-encrypted text.
+        // XOR is reversible, so this gives us the other possible form.
+        let result = '';
+        for (let i = 0; i < password.length; i++) {
+            result += String.fromCharCode(this.systemSecret[i % this.systemSecret.length].charCodeAt(0) ^ password.charCodeAt(i));
+        }
+        return result !== password ? result : undefined;
+    }
     normalizeHost(host) {
         const trimmed = host.trim().replace(/\/+$/, '');
         if (/^https?:\/\//i.test(trimmed)) {
@@ -426,7 +487,7 @@ class XtreamMonitor extends utils.Adapter {
             online: this.lastOnlineStates.get(server.id) === true,
         };
     }
-    async checkServer(server) {
+    async checkServer(server, allowPasswordFallback = true) {
         if (this.stopping) {
             return this.currentResult(server);
         }
@@ -453,6 +514,13 @@ class XtreamMonitor extends utils.Adapter {
             const responseMs = Date.now() - started;
             await this.setStateAsync(`${base}.responseMs`, { val: responseMs, ack: true });
             if (!response.ok) {
+                if (allowPasswordFallback &&
+                    (response.status === 401 || response.status === 403 || response.status === 513)) {
+                    const fallbackPassword = this.getPasswordFallback(server.password);
+                    if (fallbackPassword) {
+                        return this.checkServer({ ...server, password: fallbackPassword }, false);
+                    }
+                }
                 return this.setOffline(server, 'http', `HTTP ${response.status}`);
             }
             let data;
@@ -472,6 +540,12 @@ class XtreamMonitor extends utils.Adapter {
             const authValue = user.auth;
             const authenticated = authValue === true || String(authValue ?? '0') === '1';
             const status = String(user.status ?? 'unknown');
+            if (!authenticated && allowPasswordFallback) {
+                const fallbackPassword = this.getPasswordFallback(server.password);
+                if (fallbackPassword) {
+                    return this.checkServer({ ...server, password: fallbackPassword }, false);
+                }
+            }
             const isActive = authenticated && status.toLowerCase() === 'active';
             const activeConnections = Number.parseInt(String(user.active_cons ?? 0), 10) || 0;
             const maxConnections = Number.parseInt(String(user.max_connections ?? 0), 10) || 0;

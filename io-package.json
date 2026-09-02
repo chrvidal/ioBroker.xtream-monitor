@@ -1,7 +1,7 @@
 {
   "common": {
     "name": "xtream-monitor",
-    "version": "0.2.9",
+    "version": "0.2.10",
     "titleLang": {
       "en": "Xtream Monitor",
       "de": "Xtream Monitor",
@@ -52,6 +52,19 @@
       }
     ],
     "news": {
+      "0.2.10": {
+        "en": "Added a compatibility fallback for table passwords affected by an ioBroker JSON Config encryption regression, automatically removed objects of deleted servers, and added regression tests.",
+        "de": "Ein Kompatibilitäts-Fallback für Tabellenpasswörter bei einer ioBroker-JSON-Config-Verschlüsselungsregression wurde ergänzt, Objekte gelöschter Server werden automatisch entfernt und Regressionstests wurden hinzugefügt.",
+        "ru": "Добавлен механизм совместимости для паролей таблицы, затронутых регрессией шифрования ioBroker JSON Config, автоматическое удаление объектов удалённых серверов и регрессионные тесты.",
+        "pt": "Foi adicionado um fallback de compatibilidade para palavras-passe de tabelas afetadas por uma regressão de encriptação do ioBroker JSON Config, remoção automática de objetos de servidores eliminados e testes de regressão.",
+        "nl": "Een compatibiliteitsfallback is toegevoegd voor tabelwachtwoorden die worden getroffen door een encryptieregressie in ioBroker JSON Config, objecten van verwijderde servers worden automatisch verwijderd en regressietests zijn toegevoegd.",
+        "fr": "Ajout d’un mécanisme de compatibilité pour les mots de passe de tableau affectés par une régression de chiffrement d’ioBroker JSON Config, suppression automatique des objets des serveurs supprimés et ajout de tests de régression.",
+        "it": "Aggiunto un fallback di compatibilità per le password delle tabelle interessate da una regressione della crittografia di ioBroker JSON Config, rimozione automatica degli oggetti dei server eliminati e test di regressione.",
+        "es": "Se añadió un mecanismo de compatibilidad para las contraseñas de tablas afectadas por una regresión de cifrado de ioBroker JSON Config, la eliminación automática de objetos de servidores borrados y pruebas de regresión.",
+        "pl": "Dodano mechanizm zgodności dla haseł tabeli dotkniętych regresją szyfrowania ioBroker JSON Config, automatyczne usuwanie obiektów skasowanych serwerów oraz testy regresji.",
+        "uk": "Додано механізм сумісності для паролів таблиці, яких торкнулася регресія шифрування ioBroker JSON Config, автоматичне видалення об’єктів видалених серверів і регресійні тести.",
+        "zh-cn": "为受 ioBroker JSON Config 表格密码加密回归问题影响的密码增加了兼容回退机制，自动删除已移除服务器的对象，并添加了回归测试。"
+      },
       "0.2.9": {
         "en": "Fixed startup handling during persistent server ID migration, added regression tests for password preservation and scheduled multi-server polling, and corrected protected credential metadata.",
         "de": "Die Startbehandlung bei der Migration dauerhafter Server-IDs wurde korrigiert, Regressionstests für den Passworterhalt und das geplante Multi-Server-Polling wurden ergänzt und die Metadaten für geschützte Zugangsdaten wurden berichtigt.",

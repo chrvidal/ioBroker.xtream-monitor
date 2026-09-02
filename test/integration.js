@@ -484,6 +484,199 @@ tests.integration(adapterDir, {
             });
         });
 
+        suite('Password compatibility fallback', getHarness => {
+            let mockServer;
+            let baseUrl;
+            let requestPasswords;
+
+            before(async () => {
+                requestPasswords = [];
+
+                mockServer = http.createServer((request, response) => {
+                    const url = new URL(request.url, 'http://127.0.0.1');
+                    const password = url.searchParams.get('password') || '';
+                    requestPasswords.push(password);
+
+                    if (password !== 'test-secret') {
+                        response.statusCode = 401;
+                        response.end('Unauthorized');
+                        return;
+                    }
+
+                    response.setHeader('Content-Type', 'application/json');
+                    response.end(
+                        JSON.stringify({
+                            user_info: {
+                                auth: 1,
+                                status: 'Active',
+                                exp_date: '0',
+                                active_cons: '0',
+                                max_connections: '1',
+                            },
+                        }),
+                    );
+                });
+
+                baseUrl = await listen(mockServer);
+            });
+
+            after(async () => {
+                await close(mockServer);
+            });
+
+            it('recovers from an XOR-encrypted table password', async function () {
+                this.timeout(15_000);
+                const harness = getHarness();
+                const prefix = `${adapterName}.0`;
+
+                const systemConfig = await getObject(harness, 'system.config');
+                const secret = systemConfig?.native?.secret;
+
+                assert.equal(typeof secret, 'string');
+                assert.ok(secret.length > 0);
+
+                const plainPassword = 'test-secret';
+                let encryptedPassword = '';
+
+                for (let i = 0; i < plainPassword.length; i++) {
+                    encryptedPassword += String.fromCharCode(
+                        secret[i % secret.length].charCodeAt(0) ^ plainPassword.charCodeAt(i),
+                    );
+                }
+
+                assert.notEqual(encryptedPassword, plainPassword);
+
+                await harness.changeAdapterConfig(adapterName, {
+                    native: {
+                        servers: [
+                            {
+                                enabled: true,
+                                id: 'server1',
+                                name: 'Password fallback server',
+                                host: baseUrl,
+                                username: 'test-user',
+                                password: encryptedPassword,
+                            },
+                        ],
+                        pollIntervalMinutes: 60,
+                        timeoutSeconds: 5,
+                        logStatusChanges: false,
+                        nextServerId: 2,
+                    },
+                });
+
+                await harness.startAdapterAndWait(false);
+
+                await waitFor(async () => {
+                    const online = await getState(harness, `${prefix}.servers.server1.online`);
+                    return online?.val === true;
+                });
+
+                assert.ok(requestPasswords.includes(encryptedPassword));
+                assert.ok(requestPasswords.includes(plainPassword));
+
+                const online = await getState(harness, `${prefix}.servers.server1.online`);
+                assert.equal(online?.val, true);
+            });
+        });
+
+        suite('Server object cleanup', getHarness => {
+            let mockServer;
+            let baseUrl;
+
+            before(async () => {
+                mockServer = http.createServer((_request, response) => {
+                    response.setHeader('Content-Type', 'application/json');
+                    response.end(
+                        JSON.stringify({
+                            user_info: {
+                                auth: 1,
+                                status: 'Active',
+                                exp_date: '0',
+                                active_cons: '0',
+                                max_connections: '1',
+                            },
+                        }),
+                    );
+                });
+                baseUrl = await listen(mockServer);
+            });
+
+            after(async () => {
+                await close(mockServer);
+            });
+
+            it('removes objects for servers deleted from configuration', async function () {
+                this.timeout(15_000);
+                const harness = getHarness();
+                const prefix = `${adapterName}.0`;
+
+                await harness.changeAdapterConfig(adapterName, {
+                    native: {
+                        servers: [
+                            {
+                                enabled: true,
+                                id: 'server1',
+                                name: 'Configured server',
+                                host: baseUrl,
+                                username: 'test-user',
+                                password: 'test-secret',
+                            },
+                            {
+                                enabled: false,
+                                id: 'server2',
+                                name: 'Disabled server',
+                                host: '',
+                                username: '',
+                                password: '',
+                            },
+                        ],
+                        pollIntervalMinutes: 60,
+                        timeoutSeconds: 5,
+                        logStatusChanges: false,
+                        nextServerId: 3,
+                    },
+                });
+
+                await setObject(harness, `${prefix}.servers.server2`, {
+                    type: 'channel',
+                    common: { name: 'Disabled server' },
+                    native: {},
+                });
+
+                await setObject(harness, `${prefix}.servers.server99`, {
+                    type: 'channel',
+                    common: { name: 'Deleted server' },
+                    native: {},
+                });
+
+                await setObject(harness, `${prefix}.servers.server99.online`, {
+                    type: 'state',
+                    common: {
+                        name: 'Account online',
+                        type: 'boolean',
+                        role: 'indicator.reachable',
+                        read: true,
+                        write: false,
+                    },
+                    native: {},
+                });
+
+                await harness.startAdapterAndWait(false);
+
+                await waitFor(async () => {
+                    const configured = await getObject(harness, `${prefix}.servers.server1`);
+                    const stale = await getObject(harness, `${prefix}.servers.server99`);
+                    return configured && !stale;
+                });
+
+                assert.ok(await getObject(harness, `${prefix}.servers.server1`));
+                assert.ok(await getObject(harness, `${prefix}.servers.server2`));
+                assert.equal(await getObject(harness, `${prefix}.servers.server99`), null);
+                assert.equal(await getObject(harness, `${prefix}.servers.server99.online`), null);
+            });
+        });
+
         suite('Clean shutdown', getHarness => {
             let mockServer;
             let baseUrl;

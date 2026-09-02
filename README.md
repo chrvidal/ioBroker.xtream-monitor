@@ -91,6 +91,12 @@ npx @iobroker/repochecker https://github.com/chrvidal/ioBroker.xtream-monitor ma
 
 ## Changelog
 
+### 0.2.10 (2026-09-02)
+
+- Added a compatibility fallback for passwords affected by the ioBroker JSON Config table-encryption regression.
+- Automatically remove stale server objects after the corresponding server is deleted from the configuration.
+- Added regression tests for password compatibility and deleted-server cleanup.
+
 ### 0.2.9 (2026-09-01)
 
 - Fixed startup handling during persistent server ID migration.
