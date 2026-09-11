@@ -578,7 +578,7 @@ class XtreamMonitor extends utils.Adapter {
             if (code === 'ENOTFOUND' || code === 'EAI_AGAIN') {
                 return this.setOffline(server, 'dns', code);
             }
-            return this.setOffline(server, 'request', err.message || 'Request failed');
+            return this.setOffline(server, 'request', 'Request failed');
         }
         finally {
             this.clearTimeout(timeout);

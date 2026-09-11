@@ -677,6 +677,67 @@ tests.integration(adapterDir, {
             });
         });
 
+        suite('Request error privacy', getHarness => {
+            let mockServer;
+            let baseUrl;
+
+            before(async () => {
+                mockServer = http.createServer(request => {
+                    request.socket.destroy();
+                });
+
+                baseUrl = await listen(mockServer);
+            });
+
+            after(async () => {
+                if (typeof mockServer.closeAllConnections === 'function') {
+                    mockServer.closeAllConnections();
+                }
+                await close(mockServer);
+            });
+
+            it('does not expose credentials in request error states', async function () {
+                this.timeout(15_000);
+
+                const harness = getHarness();
+                const prefix = `${adapterName}.0`;
+                const username = 'private-test-user';
+                const password = 'private-test-password';
+
+                await harness.changeAdapterConfig(adapterName, {
+                    native: {
+                        servers: [
+                            {
+                                enabled: true,
+                                id: 'server1',
+                                name: 'Broken request server',
+                                host: baseUrl,
+                                username,
+                                password,
+                            },
+                        ],
+                        pollIntervalMinutes: 60,
+                        timeoutSeconds: 5,
+                        logStatusChanges: false,
+                        nextServerId: 2,
+                    },
+                });
+
+                await harness.startAdapterAndWait(false);
+
+                await waitFor(async () => {
+                    const errorType = await getState(harness, `${prefix}.servers.server1.errorType`);
+                    return errorType?.val === 'request';
+                }, 10_000);
+
+                const status = await getState(harness, `${prefix}.servers.server1.status`);
+
+                assert.equal(status?.val, 'Request failed');
+                assert.equal(String(status?.val).includes(username), false);
+                assert.equal(String(status?.val).includes(password), false);
+            });
+        });
+
         suite('Clean shutdown', getHarness => {
             let mockServer;
             let baseUrl;

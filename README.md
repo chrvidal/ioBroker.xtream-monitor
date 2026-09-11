@@ -91,6 +91,11 @@ npx @iobroker/repochecker https://github.com/chrvidal/ioBroker.xtream-monitor ma
 
 ## Changelog
 
+### 0.2.11 (2026-09-11)
+
+- Prevented request error states from exposing credentials.
+- Added regression coverage for credential-safe request errors.
+- Added Node.js 26 to the GitHub Actions test matrix.
 ### 0.2.10 (2026-09-02)
 
 - Added a compatibility fallback for passwords affected by the ioBroker JSON Config table-encryption regression.

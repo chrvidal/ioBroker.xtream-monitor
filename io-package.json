@@ -1,7 +1,7 @@
 {
   "common": {
     "name": "xtream-monitor",
-    "version": "0.2.10",
+    "version": "0.2.11",
     "titleLang": {
       "en": "Xtream Monitor",
       "de": "Xtream Monitor",
@@ -52,6 +52,19 @@
       }
     ],
     "news": {
+      "0.2.11": {
+        "en": "Prevented request error states from exposing credentials and added Node.js 26 CI coverage.",
+        "de": "Verhindert, dass Zugangsdaten in Request-Fehlerstatuswerten erscheinen, und CI-Tests f?r Node.js 26 erg?nzt.",
+        "ru": "????????????? ????????? ??????? ?????? ? ?????????? ?????? ???????? ? ????????? CI-???????????? Node.js 26.",
+        "pt": "Foi impedida a exposi??o de credenciais nos estados de erro de pedidos e adicionada cobertura de CI para Node.js 26.",
+        "nl": "Voorkomen dat inloggegevens in request-foutstatussen terechtkomen en CI-dekking voor Node.js 26 toegevoegd.",
+        "fr": "Emp?che l?exposition des identifiants dans les ?tats d?erreur de requ?te et ajoute la couverture CI pour Node.js 26.",
+        "it": "Impedita l?esposizione delle credenziali negli stati di errore delle richieste e aggiunta la copertura CI per Node.js 26.",
+        "es": "Se evit? que las credenciales aparezcan en los estados de error de las solicitudes y se a?adi? cobertura de CI para Node.js 26.",
+        "pl": "Zapobiegni?to ujawnianiu danych logowania w stanach b??d?w ??da? i dodano testy CI dla Node.js 26.",
+        "uk": "?????????? ????????? ????????? ????? ? ?????? ??????? ??????? ? ?????? CI-?????????? Node.js 26.",
+        "zh-cn": "???????????????? Node.js 26 ? CI ?????"
+      },
       "0.2.10": {
         "en": "Added a compatibility fallback for table passwords affected by an ioBroker JSON Config encryption regression, automatically removed objects of deleted servers, and added regression tests.",
         "de": "Ein Kompatibilitäts-Fallback für Tabellenpasswörter bei einer ioBroker-JSON-Config-Verschlüsselungsregression wurde ergänzt, Objekte gelöschter Server werden automatisch entfernt und Regressionstests wurden hinzugefügt.",
