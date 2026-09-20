@@ -29,7 +29,7 @@
       "zh-cn": "监控用户配置的 Xtream 兼容 API 端点的可用性和账户状态。"
     },
     "authors": [
-      "chrvidal"
+      "Christian Vidal <christian_vidal@icloud.com>"
     ],
     "platform": "Javascript/Node.js",
     "mode": "daemon",

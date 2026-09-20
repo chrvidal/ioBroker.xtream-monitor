@@ -165,4 +165,4 @@ npx @iobroker/repochecker https://github.com/chrvidal/ioBroker.xtream-monitor ma
 
 MIT License. See [LICENSE](LICENSE).
 
-Copyright (c) 2026 chrvidal
+Copyright (c) 2026 Christian Vidal <christian_vidal@icloud.com>

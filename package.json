@@ -2,7 +2,7 @@
   "name": "iobroker.xtream-monitor",
   "version": "0.2.11",
   "description": "Monitor multiple Xtream-compatible accounts in ioBroker",
-  "author": "chrvidal",
+  "author": "Christian Vidal <christian_vidal@icloud.com>",
   "license": "MIT",
   "keywords": [
     "ioBroker",
