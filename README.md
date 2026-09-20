@@ -20,7 +20,7 @@ The adapter is a monitoring tool only. It does **not** provide, discover, proxy,
 
 - Node.js 22 or newer
 - js-controller 7.0.7 or newer
-- Admin 7.6.20 or newer
+- Admin 7.8.23 or newer
 
 ## Configuration
 
