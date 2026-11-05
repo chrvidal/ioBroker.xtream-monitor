@@ -1,7 +1,7 @@
 {
   "common": {
     "name": "xtream-monitor",
-    "version": "0.2.11",
+    "version": "0.2.12",
     "titleLang": {
       "en": "Xtream Monitor",
       "de": "Xtream Monitor",
@@ -52,6 +52,20 @@
       }
     ],
     "news": {
+      "0.2.12": {
+        "en": "Sequential server polling and automatic retry for HTTP 404 errors.",
+        "de": "Serverabfragen nacheinander und automatische Wiederholung bei HTTP-404-Fehlern.",
+        "ru": "Последовательная проверка серверов и повтор запросов при HTTP 404.",
+        "pt": "Verificação sequencial e nova tentativa em erros HTTP 404.",
+        "nl": "Servers na elkaar controleren en HTTP 404 automatisch opnieuw proberen.",
+        "fr": "Interrogation séquentielle et nouvelle tentative en cas d'erreur HTTP 404.",
+        "it": "Controlli sequenziali e nuovo tentativo per errori HTTP 404.",
+        "es": "Consultas secuenciales y reintento automático ante errores HTTP 404.",
+        "pl": "Sekwencyjne sprawdzanie serwerów i ponawianie żądań HTTP 404.",
+        "uk": "Послідовна перевірка серверів і повтор запитів при HTTP 404.",
+        "zh-cn": "顺序检查服务器，并在 HTTP 404 错误时自动重试。"
+      },
+
       "0.2.11": {
         "en": "Prevented request error states from exposing credentials and added Node.js 26 CI coverage.",
         "de": "Verhindert, dass Zugangsdaten in Request-Fehlerstatuswerten erscheinen, und CI-Tests f?r Node.js 26 erg?nzt.",
