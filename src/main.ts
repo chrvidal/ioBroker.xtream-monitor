@@ -1,4 +1,5 @@
 import * as utils from '@iobroker/adapter-core';
+import { setTimeout as delay } from 'node:timers/promises';
 
 interface XtreamUserInfo {
     auth?: number | string | boolean;
@@ -27,6 +28,9 @@ interface CheckResult {
 }
 
 type ErrorType = 'none' | 'timeout' | 'dns' | 'http' | 'invalid_json' | 'invalid_response' | 'inactive' | 'request';
+
+const SERVER_REQUEST_GAP_MS = 1_500;
+const HTTP_404_RETRY_DELAY_MS = 1_500;
 
 class XtreamMonitor extends utils.Adapter {
     private pollTimer?: ioBroker.Timeout;
@@ -543,10 +547,36 @@ class XtreamMonitor extends utils.Adapter {
             return;
         }
 
-        const results = await Promise.all(this.servers.map(server => this.checkServer(server)));
+        // Poll sequentially to avoid bursts against providers sharing an API backend.
+        const results: CheckResult[] = [];
+        for (const [index, server] of this.servers.entries()) {
+            if (index > 0) {
+                await this.waitForDelay(SERVER_REQUEST_GAP_MS);
+            }
+            if (this.stopping) {
+                return;
+            }
+            results.push(await this.checkServer(server));
+        }
 
         if (!this.stopping) {
             await this.setSummary(results);
+        }
+    }
+
+    private async waitForDelay(ms: number): Promise<void> {
+        const controller = new AbortController();
+        this.activeControllers.add(controller);
+
+        try {
+            await delay(ms, undefined, { signal: controller.signal });
+        } catch (error) {
+            // Adapter unload aborts pending waits along with pending requests.
+            if (!this.stopping) {
+                throw error;
+            }
+        } finally {
+            this.activeControllers.delete(controller);
         }
     }
 
@@ -578,7 +608,11 @@ class XtreamMonitor extends utils.Adapter {
         };
     }
 
-    private async checkServer(server: ServerConfig, allowPasswordFallback = true): Promise<CheckResult> {
+    private async checkServer(
+        server: ServerConfig,
+        allowPasswordFallback = true,
+        retryHttp404 = true,
+    ): Promise<CheckResult> {
         if (this.stopping) {
             return this.currentResult(server);
         }
@@ -611,6 +645,15 @@ class XtreamMonitor extends utils.Adapter {
             await this.setStateAsync(`${base}.responseMs`, { val: responseMs, ack: true });
 
             if (!response.ok) {
+                if (response.status === 404 && retryHttp404) {
+                    // A single 404 may be transient; only mark offline after a failed retry.
+                    await this.waitForDelay(HTTP_404_RETRY_DELAY_MS);
+                    if (this.stopping) {
+                        return this.currentResult(server);
+                    }
+                    return this.checkServer(server, allowPasswordFallback, false);
+                }
+
                 if (
                     allowPasswordFallback &&
                     (response.status === 401 || response.status === 403 || response.status === 513)
@@ -618,7 +661,7 @@ class XtreamMonitor extends utils.Adapter {
                     const fallbackPassword = this.getPasswordFallback(server.password);
 
                     if (fallbackPassword) {
-                        return this.checkServer({ ...server, password: fallbackPassword }, false);
+                        return this.checkServer({ ...server, password: fallbackPassword }, false, retryHttp404);
                     }
                 }
 
@@ -649,7 +692,7 @@ class XtreamMonitor extends utils.Adapter {
                 const fallbackPassword = this.getPasswordFallback(server.password);
 
                 if (fallbackPassword) {
-                    return this.checkServer({ ...server, password: fallbackPassword }, false);
+                    return this.checkServer({ ...server, password: fallbackPassword }, false, retryHttp404);
                 }
             }
 

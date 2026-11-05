@@ -145,7 +145,8 @@ tests.integration(adapterDir, {
                 await close(mockServer);
             });
 
-            it('writes API data, summaries and ioBroker-compliant object roles', async () => {
+            it('writes API data, summaries and ioBroker-compliant object roles', async function () {
+                this.timeout(15000);
                 const harness = getHarness();
                 await harness.changeAdapterConfig(adapterName, {
                     native: {
